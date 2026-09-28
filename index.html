@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Robina C. Calos — Portfolio</title>
+<meta name="description" content="IT Student | Web Developer | Learning HTML, CSS, C#, and C++">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  /* ============ DESIGN TOKENS — edit these to restyle the whole site ============ */
+  :root {
+    --paper: #efeee7;        /* main background */
+    --paper-alt: #e6e2d4;    /* tab / sidebar background */
+    --ink: #1c1d1a;          /* primary text */
+    --ink-soft: #58594f;     /* secondary text */
+    --accent: #2e6b57;       /* primary accent — links, headings */
+    --accent-warm: #b8712a;  /* secondary accent — binder rings, tags */
+    --rule: #d1cdbd;         /* hairline borders */
+    --card: #f7f6f1;         /* card background */
+    --font-display: "Fraunces", Georgia, serif;
+    --font-body: "Inter", -apple-system, sans-serif;
+    --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+    --spine-width: 220px;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    * { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+  }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-body);
+    line-height: 1.55;
+  }
+  a { color: var(--accent); text-decoration-thickness: 1.5px; text-underline-offset: 3px; }
+  a:focus-visible, button:focus-visible, .tab:focus-visible {
+    outline: 2.5px solid var(--accent-warm);
+    outline-offset: 3px;
+  }
+  .skip-link {
+    position: absolute; left: -999px; top: 0;
+    background: var(--ink); color: var(--paper);
+    padding: 0.75rem 1.25rem; z-index: 100;
+    font-family: var(--font-mono); font-size: 0.85rem;
+  }
+  .skip-link:focus { left: 1rem; top: 1rem; }
+  h1, h2, h3 { font-family: var(--font-display); font-weight: 600; line-height: 1.1; margin: 0; }
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent-warm);
+    display: block;
+    margin-bottom: 0.6rem;
+  }
+  /* ============ LAYOUT: binder spine (left) + content ============ */
+  .layout {
+    display: grid;
+    grid-template-columns: var(--spine-width) 1fr;
+    min-height: 100vh;
+    width: 100%;
+  }
+  /* --- Signature element: the binder spine with punched rings + tab index --- */
+  .spine {
+    background: var(--paper-alt);
+    border-right: 1px solid var(--rule);
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding: 1.75rem 0;
+    overflow-y: auto;
+  }
+  .rings {
+    position: absolute;
+    left: 18px;
+    top: 0;
+    bottom: 0;
+    width: 14px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    pointer-events: none;
+  }
+  .ring {
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: var(--paper);
+    border: 2px solid var(--accent-warm);
+  }
+  .spine-id {
+    padding: 0 1.5rem 1.5rem 3rem;
+    border-bottom: 1px solid var(--rule);
+    margin-bottom: 1rem;
+    text-align: center;
+  }
+  .profile-image {
+    width: 110px;
+    height: 110px;
+    border-radius: 20%;
+    object-fit: cover;
+    border: 3px solid var(--accent);
+    display: block;
+    margin: 0 auto 1rem;
+  }
+  .spine-id .name {
+    font-family: var(--font-display);
+    font-size: 1.35rem;
+    font-weight: 600;
+    display: block;
+  }
+  .spine-id .role {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--ink-soft);
+    line-height: 1.6;
+  }
+  nav.index { padding-left: 3rem; padding-right: 1rem; display: flex; flex-direction: column; gap: 0.25rem; }
+  .tab {
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    color: var(--ink);
+    text-decoration: none;
+    padding: 0.55rem 0.75rem;
+    border-radius: 3px 0 0 3px;
+    display: flex;
+    gap: 0.6rem;
+  }
+  .tab:hover, .tab.active { background: var(--card); color: var(--accent); }
+  .tab .code { color: var(--accent-warm); }
+  .spine-footer {
+    margin-top: auto;
+    padding: 1.5rem 1.5rem 0 3rem;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--ink-soft);
+  }
+  /* --- Mobile: spine collapses to a top bar --- */
+  @media (max-width: 780px) {
+    .layout { grid-template-columns: 1fr; }
+    .spine {
+      position: static; height: auto; flex-direction: row;
+      align-items: center; padding: 1rem; overflow-x: auto;
+    }
+    .rings { display: none; }
+    .spine-id { border-bottom: none; border-right: 1px solid var(--rule); padding: 0 1rem; margin: 0; flex-shrink: 0; text-align: left; }
+    .profile-image { display: none; }
+    nav.index { flex-direction: row; padding: 0 0 0 1rem; }
+    .spine-footer { display: none; }
+  }
+
+  /* ▼▼ CHANGED: right side now fills 100% of the available width ▼▼ */
+  main {
+    min-width: 0;
+    width: 100%;
+  }
+  section {
+    padding: 5rem 4rem;
+    border-bottom: 1px solid var(--rule);
+    width: 100%;
+    max-width: 100%;   /* was: 900px */
+  }
+  /* ▲▲ END CHANGE ▲▲ */
+
+  @media (max-width: 780px) { section { padding: 3rem 1.5rem; } }
+  /* ============ HERO ============ */
+  .hero h1 { font-size: clamp(2.2rem, 5vw, 3.4rem); }
+  .hero .tagline {
+    font-size: 1.15rem;
+    color: var(--ink-soft);
+    max-width: 100%;      /* was: 42ch */
+    margin-top: 1rem;
+  }
+  .hero-links {
+    display: flex; gap: 1.5rem; flex-wrap: wrap;
+    margin-top: 2rem;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+  }
+  .hero-links a { color: var(--ink); border-bottom: 1px solid var(--ink); padding-bottom: 2px; }
+  .hero-links a:hover { color: var(--accent); border-color: var(--accent); }
+  /* ============ ABOUT ============ */
+  .about p { max-width: 100%; color: var(--ink-soft); }   /* was: 65ch */
+  .about p + p { margin-top: 1rem; }
+  /* ============ SKILLS ============ */
+  .skill-groups { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 2rem; margin-top: 2rem; }
+  .skill-group h3 { font-size: 1rem; font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.05em; color: var(--accent); margin-bottom: 0.75rem; }
+  .skill-group ul { list-style: none; padding: 0; margin: 0; color: var(--ink-soft); }
+  .skill-group li { padding: 0.3rem 0; border-bottom: 1px dotted var(--rule); }
+  /* Learning badge */
+  .learning-badge {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    background: rgba(184, 113, 42, 0.12);
+    color: var(--accent-warm);
+    padding: 0.15rem 0.45rem;
+    border-radius: 3px;
+    margin-left: 0.4rem;
+    font-weight: 500;
+    border: 1px solid rgba(184, 113, 42, 0.25);
+  }
+  /* ============ PROJECTS ============ */
+  .project-grid { display: grid; gap: 1.75rem; margin-top: 2rem; width: 100%; }
+  .project-card {
+    background: var(--card);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 1.75rem;
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 1.5rem;
+    width: 100%;
+  }
+  @media (max-width: 640px) { .project-card { grid-template-columns: 1fr; } }
+  .project-card img {
+    width: 100%; height: 100%; min-height: 140px;
+    object-fit: cover; border-radius: 4px;
+    border: 1px solid var(--rule);
+  }
+  .project-card h3 { font-size: 1.25rem; margin-bottom: 0.4rem; }
+  .project-card .desc { color: var(--ink-soft); font-size: 0.95rem; }
+  .tags { display: flex; gap: 0.5rem; flex-wrap: wrap; margin: 0.85rem 0; }
+  .tag {
+    font-family: var(--font-mono); font-size: 0.7rem;
+    background: var(--paper-alt); color: var(--accent-warm);
+    padding: 0.2rem 0.55rem; border-radius: 3px;
+  }
+  .project-links { font-family: var(--font-mono); font-size: 0.82rem; display: flex; gap: 1.25rem; }
+  /* ============ EXPERIENCE / EDUCATION TIMELINE ============ */
+  .timeline-columns {
+    margin-top: 2rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    width: 100%;
+  }
+  @media (max-width: 640px) { .timeline-columns { grid-template-columns: 1fr; gap: 2.5rem; } }
+  .timeline-column h3.col-title {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--accent);
+    margin-bottom: 1.25rem;
+  }
+  .timeline { border-left: 2px solid var(--rule); padding-left: 1.75rem; display: flex; flex-direction: column; gap: 2rem; }
+  .timeline-item { position: relative; }
+  .timeline-item::before {
+    content: ""; position: absolute; left: -2.28rem; top: 0.35rem;
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--accent-warm);
+  }
+  .timeline-item .when { font-family: var(--font-mono); font-size: 0.78rem; color: var(--ink-soft); }
+  .timeline-item h3 { font-size: 1.1rem; margin-top: 0.25rem; }
+  .timeline-item .where { color: var(--accent); font-size: 0.92rem; margin-bottom: 0.4rem; }
+  .timeline-item p { color: var(--ink-soft); font-size: 0.92rem; max-width: 100%; }  /* was: 60ch */
+  /* ============ CONTACT / FOOTER ============ */
+  .contact { border-bottom: none; }
+  .contact p { color: var(--ink-soft); max-width: 100%; }   /* was: 50ch */
+  .contact-methods { margin-top: 1.75rem; display: flex; flex-direction: column; gap: 0.6rem; font-family: var(--font-mono); font-size: 0.95rem; }
+  footer.sign-off { padding: 2rem 4rem 3rem; font-family: var(--font-mono); font-size: 0.75rem; color: var(--ink-soft); }
+  @media (max-width: 780px) { footer.sign-off { padding: 1.5rem; } }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="layout">
+  <!-- ============ SPINE / NAVIGATION ============ -->
+  <header class="spine">
+    <div class="rings" aria-hidden="true">
+      <span class="ring"></span><span class="ring"></span><span class="ring"></span>
+      <span class="ring"></span><span class="ring"></span><span class="ring"></span>
+    </div>
+    <div class="spine-id">
+      <!-- Profile Image -->
+      <img src="IMG_20251223_165450.png" alt="Robina C. Calos" class="profile-image">
+      <span class="name">Robina C. Calos</span>
+      <span class="role">B.S. Information Technology<br>Eastern Samar State University<br>2nd Year | 2026-2027</span>
+    </div>
+    <nav class="index" aria-label="Section navigation">
+      <a class="tab active" href="#hero"><span class="code">00</span> Home</a>
+      <a class="tab" href="#about"><span class="code">01</span> About</a>
+      <a class="tab" href="#skills"><span class="code">02</span> Skills</a>
+      <a class="tab" href="#projects"><span class="code">03</span> Projects</a>
+      <a class="tab" href="#experience"><span class="code">04</span> Journey</a>
+      <a class="tab" href="#contact"><span class="code">05</span> Contact</a>
+    </nav>
+    <div class="spine-footer">
+      Last updated January 2026
+    </div>
+  </header>
+  <main id="main">
+    <!-- ============ HERO ============ -->
+    <section class="hero" id="hero">
+      <span class="eyebrow">Portfolio 2025</span>
+      <h1>Hi, I'm Robina C. Calos.<br>Building websites one at a time.</h1>
+      <p class="tagline">2nd year IT student learning web development, C#, and C++. Passionate about creating clean, functional digital solutions.</p>
+      <div class="hero-links">
+        <a href="mailto:robina.calos@gmail.com">📧 Email</a>
+        <a href="#" download>📄 Resume</a>
+        <a href="https://github.com/robinacalos" target="_blank">💻 GitHub</a>
+        <a href="https://linkedin.com/in/robinacalos" target="_blank">💼 LinkedIn</a>
+      </div>
+    </section>
+    <!-- ============ ABOUT ============ -->
+    <section class="about" id="about">
+      <span class="eyebrow">Index 01</span>
+      <h2>About</h2>
+      <p>I'm a 2nd year IT student at Eastern Samar State University with a genuine passion for web development. I started coding out of curiosity and discovered I love solving problems through code.</p>
+      <p>Right now, I'm building skills in <strong>HTML, CSS</strong>, and <strong>JavaScript</strong> for web development, while also learning <strong>C#</strong> and <strong>C++</strong> for software development. I use <strong>Visual Studio Code</strong> and <strong>Visual Studio</strong> as my primary tools.</p>
+      <p>I believe the best way to learn is by building. Every project teaches me something new, and I'm always excited to take on new challenges and collaborate with others.</p>
+    </section>
+    <!-- ============ SKILLS ============ -->
+    <section id="skills">
+      <span class="eyebrow">Index 02</span>
+      <h2>Skills</h2>
+      <div class="skill-groups">
+        <!-- DUPLICATE THIS BLOCK for each skill category -->
+        <div class="skill-group">
+          <h3>Languages</h3>
+          <ul>
+            <li>HTML</span></li>
+            <li>CSS</span></li>
+            <li>JavaScript</span></li>
+            <li>C#</li>
+            <li>C++</li>
+          </ul>
+        </div>
+        <div class="skill-group">
+          <h3>Development</h3>
+          <ul>
+            <li>VS Code</li>
+            <li>Visual Studio</li>
+            <li>Responsive Design</li>
+          </ul>
+        </div>
+        <div class="skill-group">
+          <h3>Frameworks</h3>
+          <ul>
+            <li>.NET Basics</li>
+            <li>Windows Forms</li>
+          </ul>
+        </div>
+        <div class="skill-group">
+          <h3>Core Concepts</h3>
+          <ul>
+            <li>OOP Principles</li>
+            <li>Web Design</li>
+            <li>Data Structures</li>
+          </ul>
+        </div>
+        <!-- END DUPLICATE BLOCK -->
+      </div>
+    </section>
+    <!-- ============ PROJECTS ============ -->
+    <section id="projects">
+      <span class="eyebrow">Index 03</span>
+      <h2>Projects</h2>
+      <div class="project-grid">
+        
+        <!-- END DUPLICATE BLOCK -->
+        <article class="project-card">
+          <img src="Screenshot 2026-08-16 082404.png" alt="Hotel Reservation System screenshot">
+          <div>
+            <h3>Hotel Reservation System</h3>
+            <p class="desc">Desktop app built with C# and Windows Forms. Manages room bookings, guest info, and reservations.</p>
+            <div class="tags">
+              <span class="tag">C#</span>
+              <span class="tag">Windows Forms</span>
+              <span class="tag">OOP</span>
+            </div>
+            <div class="project-links">
+              <a href="#" target="_blank">Details →</a>
+              <a href="#" target="_blank">Code →</a>
+            </div>
+          </div>
+        </article>
+        <article class="project-card">
+          <img src="Screenshot 2026-08-16 102742.png" alt="Debt System screenshot">
+          <div>
+            <h3>Debt System</h3>
+            <p class="desc">Self made project using C# Windows Form that can add, edit, delete, and manages debt.</p>
+            <div class="tags">
+              <span class="tag">C#</span>
+              <span class="tag">Windows Forms</span>
+              <span class="tag">OOP</span>
+            </div>
+            <div class="project-links">
+              <a href="#" target="_blank">View Live →</a>
+              <a href="#" target="_blank">Code →</a>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+    <!-- ============ EXPERIENCE / EDUCATION ============ -->
+    <section id="experience">
+      <span class="eyebrow">Index 04</span>
+      <h2>Experience &amp; Education</h2>
+      <div class="timeline-columns">
+        <!-- LEFT COLUMN: EXPERIENCE -->
+        <div class="timeline-column">
+          <h3 class="col-title">Activities</h3>
+          <div class="timeline">
+            <!-- DUPLICATE THIS BLOCK for each job or internship -->
+            <div class="timeline-item">
+              <span class="when">2025</span>
+              <h3>Learning & Building</h3>
+              <div class="where">Self-Study</div>
+              <p>Focused on mastering HTML, CSS, and web development with VS Code. Building personal projects to apply what I learn in class.</p>
+            </div>
+            <!-- END DUPLICATE BLOCK -->
+            <div class="timeline-item">
+              <span class="when">2025</span>
+              <h3>Programming Fundamentals</h3>
+              <div class="where">University Course</div>
+              <p>Learning C# and C++ through my IT program. Building strong foundations in OOP, data structures, and algorithms.</p>
+            </div>
+            <div class="timeline-item">
+              <span class="when">2026</span>
+              <h3>Web Development Start</h3>
+              <div class="where">Self-Initiated</div>
+              <p>Started learning HTML and CSS to create responsive websites. Using VS Code as my main development tool.</p>
+            </div>
+            <div class="timeline-item">
+              <span class="when">Ongoing</span>
+              <h3>Community & Collaboration</h3>
+              <div class="where">ESSU</div>
+              <p>Connecting with fellow IT students. Sharing knowledge and learning from peers about development and coding.</p>
+            </div>
+          </div>
+        </div>
+        <!-- RIGHT COLUMN: EDUCATION -->
+        <div class="timeline-column">
+          <h3 class="col-title">Education</h3>
+          <div class="timeline">
+            <!-- DUPLICATE THIS BLOCK for each degree or program -->
+            <div class="timeline-item">
+              <span class="when">2025 — 2026</span>
+              <h3>Bachelor of Science in IT</h3>
+              <div class="where">Eastern Samar State University</div>
+              <p><strong>Currently 2nd Year</strong><br><br>
+              <strong>Learning:</strong><br>
+              • Object-Oriented Programming<br>
+              • Integrative Programming and Technologies<br>
+              • Human Computer Interaction (HCI)<br>
+              • Information Management</p>
+            </div>
+            <!-- END DUPLICATE BLOCK -->
+            <div class="timeline-item">
+              <span class="when">Completed 2023 - 2025</span>
+              <h3>Senior High School</h3>
+              <div class="where">Sta. Fe National High School</div>
+              <p>Graduated with ICT specialization. This is where I first became interested in computer and technology.</p>
+            </div>
+            <div class="timeline-item">
+              <span class="when">Ongoing</span>
+              <h3>Self-Learning</h3>
+              <div class="where">Online Resources</div>
+              <p>Learning through freeCodeCamp, W3Schools, MDN, Microsoft Learn, and YouTube channels.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- ============ CONTACT ============ -->
+    <section class="contact" id="contact">
+      <span class="eyebrow">Index 05</span>
+      <h2>Get in touch</h2>
+      <p>I'm always open to new opportunities, collaboration, and learning from others. Feel free to reach out if you want to discuss projects, programming, or just chat about tech!</p>
+      <p style="margin-top: 1rem;"><strong>Interested in:</strong> Collaborations • Learning opportunities • Networking</p>
+      <div class="contact-methods">
+        <a href="mailto:robinacalos@gmail.com">robinacalos@gmail.com</a>
+        <a href="https://github.com/robinacalos" target="_blank">github.com/robinacalos</a>
+        <a href="https://linkedin.com/in/robinacalos" target="_blank">linkedin.com/in/robinacalos</a>
+        <a href="https://facebook.com/robinacalos" target="_blank">facebook.com/robinacalos</a>
+      </div>
+    </section>
+    <footer class="sign-off">
+      © 2025 Robina C. Calos • IT Student • Built with HTML & CSS<br>
+      <small style="opacity: 0.7; margin-top: 0.5rem; display: block;">Made with VS Code ✨</small>
+    </footer>
+  </main>
+</div>
+<script>
+  // ============ ACTIVE NAVIGATION STATE ============
+  const sections = document.querySelectorAll('section');
+  const navTabs = document.querySelectorAll('.tab');
+  const observerOptions = {
+    root: null,
+    rootMargin: '-50% 0px -50% 0px',
+    threshold: 0
+  };
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.getAttribute('id');
+        navTabs.forEach(tab => {
+          tab.classList.remove('active');
+          if (tab.getAttribute('href') === `#${id}`) {
+            tab.classList.add('active');
+          }
+        });
+      }
+    });
+  }, observerOptions);
+  sections.forEach(section => observer.observe(section));
+  // ============ SMOOTH SCROLL FOR NAVIGATION ============
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+      e.preventDefault();
+      const target = document.querySelector(this.getAttribute('href'));
+      if (target) {
+        target.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start'
+        });
+      }
+    });
+  });
+</script>
+</body>
+</html>
